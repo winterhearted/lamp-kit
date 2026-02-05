@@ -10,7 +10,8 @@ steps:
 
   - type: input
     question: "    Domain name"
-    default: ""
+    default:
+      type: cwd
     set: DOMAIN_NAME
 
   # Apache Configuration
@@ -159,13 +160,14 @@ steps:
 
   - type: input
     question: "    MariaDB root password"
-    set: MARIADB_ROOT_PASSWORD
-    generate:
+    default:
+      type: generator
       length: 16
       charset:
         - alpha_lower
         - alpha_upper
         - numbers
+    set: MARIADB_ROOT_PASSWORD
 
   - type: input
     question: "    MariaDB user"
@@ -174,17 +176,20 @@ steps:
 
   - type: input
     question: "    MariaDB password"
-    set: MARIADB_PASSWORD
-    generate:
+    default:
+      type: generator
       length: 16
       charset:
         - alpha_lower
         - alpha_upper
         - numbers
+    set: MARIADB_PASSWORD
 
   - type: input
     question: "    MariaDB database"
-    default_from: DOMAIN_NAME
+    default:
+      type: reference
+      key: DOMAIN_NAME
     set: MARIADB_DATABASE
 
   - type: input
