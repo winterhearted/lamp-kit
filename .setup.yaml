@@ -1,0 +1,247 @@
+steps:
+  # Common Configuration
+  - type: section
+    name: "Common Configuration"
+
+  - type: message
+    text: |
+
+        {{c:blue}}{{c:bold}}Common Configuration ═══════════════════════════════════════════════════════════{{c:reset}}
+
+  - type: input
+    question: "    Domain name"
+    default: ""
+    set: DOMAIN_NAME
+
+  # Apache Configuration
+  - type: section
+    name: "Apache Configuration"
+
+  - type: message
+    text: |
+
+        {{c:blue}}{{c:bold}}Apache HTTPd Configuration ═════════════════════════════════════════════════════{{c:reset}}
+
+  - type: input
+    question: "    Public path"
+    default: "/public"
+    set: PUBLIC_PATH
+
+  - type: yes_no
+    question: "    Enable autolocalhost?"
+    default: yes
+    yes:
+      set:
+        ENABLE_AUTOLOCALHOST: "true"
+    no:
+      set:
+        ENABLE_AUTOLOCALHOST: "false"
+
+  - type: yes_no
+    question: "    Enable autolocalhost SSL?"
+    default: yes
+    yes:
+      set:
+        ENABLE_AUTOLOCALHOST_SSL: "true"
+    no:
+      set:
+        ENABLE_AUTOLOCALHOST_SSL: "false"
+
+  - type: yes_no
+    question: "    Force SSL for autolocalhost?"
+    default: yes
+    yes:
+      set:
+        AUTOLOCALHOST_FORCE_SSL: "true"
+    no:
+      set:
+        AUTOLOCALHOST_FORCE_SSL: "false"
+
+  - type: input
+    question: "    HTTP port"
+    default: "80"
+    set: HTTP_PORT
+    validation:
+      regex: "^[0-9]+$"
+      min: 1
+      max: 65535
+
+  - type: input
+    question: "    HTTPS port"
+    default: "443"
+    set: HTTPS_PORT
+    validation:
+      regex: "^[0-9]+$"
+      min: 1
+      max: 65535
+
+  # PHP Configuration
+  - type: section
+    name: "PHP Configuration"
+
+  - type: message
+    text: |
+
+        {{c:blue}}{{c:bold}}PHP Configuration ══════════════════════════════════════════════════════════════{{c:reset}}
+
+  - type: input
+    question: "    PHP version"
+    default: "8.3"
+    set: PHP_VERSION
+
+  - type: input
+    question: "    PHP timezone"
+    default: "Asia/Almaty"
+    set: PHP_TIMEZONE
+
+  - type: yes_no
+    question: "    Enable OPcache?"
+    default: yes
+    yes:
+      set:
+        PHP_ENABLE_OPCACHE: "true"
+    no:
+      set:
+        PHP_ENABLE_OPCACHE: "false"
+
+  - type: yes_no
+    question: "    Enable JIT?"
+    default: yes
+    yes:
+      set:
+        PHP_ENABLE_JIT: "true"
+    no:
+      set:
+        PHP_ENABLE_JIT: "false"
+
+  - type: input
+    question: "    PHP max execution time (seconds)"
+    default: "120"
+    set: PHP_MAX_EXECUTION_TIME
+    validation:
+      regex: "^[0-9]+$"
+      min: 0
+
+  - type: input
+    question: "    PHP memory limit"
+    default: "256M"
+    set: PHP_MEMORY_LIMIT
+    validation:
+      regex: "^[0-9]+[KMG]?$"
+
+  - type: input
+    question: "    PHP post max size"
+    default: "64M"
+    set: PHP_POST_MAX_SIZE
+    validation:
+      regex: "^[0-9]+[KMG]?$"
+
+  - type: input
+    question: "    PHP upload max filesize"
+    default: "32M"
+    set: PHP_UPLOAD_MAX_FILESIZE
+    validation:
+      regex: "^[0-9]+[KMG]?$"
+
+  # MariaDB Configuration
+  - type: section
+    name: "MariaDB Configuration"
+
+  - type: message
+    text: |
+
+        {{c:blue}}{{c:bold}}MariaDB Configuration ══════════════════════════════════════════════════════════{{c:reset}}
+
+  - type: input
+    question: "    MariaDB version"
+    default: "11.6"
+    set: MARIADB_VERSION
+
+  - type: input
+    question: "    MariaDB root password"
+    set: MARIADB_ROOT_PASSWORD
+    generate:
+      length: 16
+      charset:
+        - alpha_lower
+        - alpha_upper
+        - numbers
+
+  - type: input
+    question: "    MariaDB user"
+    default: "user"
+    set: MARIADB_USER
+
+  - type: input
+    question: "    MariaDB password"
+    set: MARIADB_PASSWORD
+    generate:
+      length: 16
+      charset:
+        - alpha_lower
+        - alpha_upper
+        - numbers
+
+  - type: input
+    question: "    MariaDB database"
+    default_from: DOMAIN_NAME
+    set: MARIADB_DATABASE
+
+  - type: input
+    question: "    MariaDB port"
+    default: "3306"
+    set: MARIADB_PORT
+    validation:
+      regex: "^[0-9]+$"
+      min: 1
+      max: 65535
+
+  - type: message
+    text: |
+
+      {{c:green}}{{c:bold}}════════════════════════════════════════════════════════════════════════════════{{c:reset}}
+      {{c:green}}{{c:bold}}  Configuration complete for {{DOMAIN_NAME}}!{{c:reset}}
+      {{c:green}}{{c:bold}}════════════════════════════════════════════════════════════════════════════════{{c:reset}}
+
+      {{c:white}}Apache HTTPd document root:{{c:reset}}  {{c:bright_yellow}}htdocs{{PUBLIC_PATH}}{{c:reset}}
+
+      {{c:white}}MariaDB credentials:{{c:reset}}
+        Host:           {{c:bright_yellow}}site-mariadb{{c:reset}}
+        User:           {{c:bright_yellow}}{{MARIADB_USER}}{{c:reset}}
+        Password:       {{c:bright_yellow}}{{MARIADB_PASSWORD}}{{c:reset}}
+        Database:       {{c:bright_yellow}}{{MARIADB_DATABASE}}{{c:reset}}
+
+        Root password:  {{c:bright_yellow}}{{MARIADB_ROOT_PASSWORD}}{{c:reset}}
+
+      {{c:white}}Before first run, you can place SQL dumps in:{{c:reset}}
+        {{c:bright_yellow}}docker/mariadb/init-scripts/{{c:reset}}
+
+      Supported formats: {{c:bright_yellow}}.sql{{c:reset}}, {{c:bright_yellow}}.sql.gz{{c:reset}}
+      They will be automatically imported into {{c:bright_yellow}}{{MARIADB_DATABASE}}{{c:reset}}
+
+      Run {{c:bright_yellow}}docker compose up -d{{c:reset}}
+
+      {{c:bright_red}}{{c:bold}}Note:{{c:reset}} First launch may take several minutes while
+      Docker pulls and builds the required images.
+
+  - type: yes_no
+    id: run_compose
+    question: "Start docker compose now?"
+    default: no
+    yes:
+      run: "docker compose up -d"
+    no:
+      goto: end_setup
+
+  - type: yes_no
+    id: attach_logs
+    question: "Attach to container logs?"
+    default: yes
+    yes:
+      run: "docker compose logs -f"
+
+  - id: end_setup
+    type: message
+    text: |
+
+      All set! This installer will self-destruct in 5... 4... 3... just kidding!

@@ -1,0 +1,99 @@
+services:
+  site-apache:
+    image: httpd:2.4
+    container_name: ${DOMAIN_NAME}-httpd
+    restart: unless-stopped
+    labels:
+      - "kz.byte0.autolocalhost.enabled=${ENABLE_AUTOLOCALHOST}"
+      - "kz.byte0.autolocalhost.domain=${DOMAIN_NAME}"
+      - "kz.byte0.autolocalhost.ports=${HTTP_PORT}:80"
+      - "kz.byte0.autolocalhost.sslEnabled=${ENABLE_AUTOLOCALHOST}"
+      - "kz.byte0.autolocalhost.forceSsl=false"
+      - "kz.byte0.autolocalhost.sslPorts=${HTTPS_PORT}:80"
+    volumes:
+      - ./docker/apache/httpd.conf:/usr/local/apache2/conf/httpd.conf:ro
+      - ./docker/apache/start-apache.sh:/usr/local/bin/start-apache.sh:ro
+      - ./docker/logs/apache:/usr/local/apache2/logs
+      - ./htdocs:/var/www/html
+    environment:
+      - DOMAIN_NAME=${DOMAIN_NAME}
+      - PUBLIC_PATH=${PUBLIC_PATH}
+    depends_on:
+      - site-mariadb
+      - site-php
+    networks:
+      - site-network
+      - external-network
+    command: ["/bin/bash", "/usr/local/bin/start-apache.sh"]
+
+  site-php:
+    image: winterhearted/php-fpm:${PHP_VERSION}
+    pull_policy: always
+    container_name: ${DOMAIN_NAME}-php
+    restart: unless-stopped
+    volumes:
+      - ./htdocs:/var/www/html
+    environment:
+      - PHP_DATE_TIMEZONE=Asia/Almaty
+      - PHP_ENABLE_OPCACHE=${PHP_ENABLE_OPCACHE}
+      - PHP_ENABLE_JIT=${PHP_ENABLE_JIT}
+      - PHP_MAX_EXECUTION_TIME=120
+      - PHP_MEMORY_LIMIT=256M
+      - PHP_POST_MAX_SIZE=64M
+      - PHP_UPLOAD_MAX_FILESIZE=32M
+    networks:
+      - site-network
+
+  site-mariadb:
+    image: mariadb:${MARIADB_VERSION}
+    container_name: ${DOMAIN_NAME}-mariadb
+    restart: unless-stopped
+    user: "1000:1000"
+    volumes:
+      - ./docker/mariadb/data:/var/lib/mysql
+      - ./docker/mariadb/init-scripts:/docker-entrypoint-initdb.d
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MYSQL_USER: ${MARIADB_USER}
+      MYSQL_PASSWORD: ${MARIADB_PASSWORD}
+      MYSQL_DATABASE: ${MARIADB_DATABASE}
+    networks:
+      - site-network
+
+  site-phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: ${DOMAIN_NAME}-phpmyadmin
+    restart: unless-stopped
+    labels:
+      - "kz.byte0.autolocalhost.enabled=${ENABLE_AUTOLOCALHOST}"
+      - "kz.byte0.autolocalhost.domain=pma.${DOMAIN_NAME}"
+      - "kz.byte0.autolocalhost.ports=${HTTP_PORT}:80"
+      - "kz.byte0.autolocalhost.sslEnabled=${ENABLE_AUTOLOCALHOST}"
+      - "kz.byte0.autolocalhost.forceSsl=false"
+      - "kz.byte0.autolocalhost.sslPorts=${HTTPS_PORT}:80"
+    volumes:
+      - ./docker/phpmyadmin/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php:ro
+    environment:
+      - PMA_HOST=site-mariadb
+      - PMA_PORT=3306
+      - PMA_USER=root
+      - PMA_PASSWORD=${MARIADB_ROOT_PASSWORD}
+      - PMA_ARBITRARY=0
+      - UPLOAD_LIMIT=100M
+      - MEMORY_LIMIT=256M
+      - MAX_EXECUTION_TIME=600
+      - PHP_MAX_INPUT_VARS=10000
+      - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
+    depends_on:
+      - site-mariadb
+    networks:
+      - site-network
+      - external-network
+
+networks:
+  site-network:
+    driver: bridge
+    name: ${DOMAIN_NAME}-net
+  external-network:
+    external: true
+    name: autolocalhost-external-network
