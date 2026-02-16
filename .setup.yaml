@@ -230,6 +230,13 @@ steps:
       Docker pulls and builds the required images.
 
   - type: yes_no
+    id: clone_panther
+    question: "Clone PantherCMS into htdocs? (requires SSH key for gitlab.com)"
+    default: no
+    yes:
+      run: "git clone git@gitlab.com:pantera-kz/PantherCMS.git htdocs && cd htdocs && git remote remove origin && rm -rf .githooks && rm -rf .git"
+
+  - type: yes_no
     id: run_compose
     question: "Start docker compose now?"
     default: no
