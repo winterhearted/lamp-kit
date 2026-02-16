@@ -2,6 +2,13 @@
 
 Docker stack for local PHP development: Apache + PHP-FPM + MariaDB + phpMyAdmin.
 
+Primarily intended for internal use within our studio. In particular, the interactive setup offers an option to deploy PantherCMS from a private repository, accessible only to authorized team members. That said, the kit itself is fully open and we'd be happy if it proves useful to anyone else.
+
+Designed to work together with:
+
+- [autolocalhost](https://github.com/winterhearted/autolocalhost) — local hostname management for containers, self-signed SSL certificates, and reverse proxying
+- [setup-lamp-kit](https://github.com/winterhearted/setup-lamp-kit) — interactive deployment of the composition based on `.setup.yaml`
+
 ## Stack
 
 | Service | Image | Description |
