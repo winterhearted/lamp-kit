@@ -201,6 +201,8 @@ steps:
       min: 1
       max: 65535
 
+  - type: save_env
+
   - type: message
     text: |
 
