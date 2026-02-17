@@ -41,6 +41,17 @@ services:
       - PHP_MEMORY_LIMIT=256M
       - PHP_POST_MAX_SIZE=64M
       - PHP_UPLOAD_MAX_FILESIZE=32M
+      # Database — Laravel style
+      - DB_CONNECTION=mysql
+      - DB_HOST=site-mariadb
+      - DB_PORT=3306
+      - DB_DATABASE=${MARIADB_DATABASE}
+      - DB_USERNAME=${MARIADB_USER}
+      - DB_PASSWORD=${MARIADB_PASSWORD}
+      # Database — Symfony / Doctrine DSN style
+      - DATABASE_URL=mysql://${MARIADB_USER}:${MARIADB_PASSWORD}@site-mariadb:3306/${MARIADB_DATABASE}?serverVersion=mariadb-${MARIADB_VERSION}&charset=utf8mb4
+      # Domain
+      - DOMAIN_NAME=${DOMAIN_NAME}
     networks:
       - site-network
 
